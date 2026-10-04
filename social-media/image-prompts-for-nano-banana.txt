@@ -1,0 +1,83 @@
+MyW – Meine Lieblingsbars
+Nano Banana Image Prompts
+Generated: alle 15 Bars (Beispiel, Rest nach Generierung)
+================================================================================
+
+ANLEITUNG:
+1. Gehe zu nano banana (nanobotanics.com oder dein Zugang)
+2. Nutze den Prompt für jede Bar
+3. Speichere das Bild als: <slug>.jpg (z.B. "abbaubar.jpg")
+4. Lege es in den Ordner: public/images/
+5. Führe danach aus: node scripts/add-images.mjs
+
+STIL-ANWEISUNG (für konsistente Ergebnisse):
+- Alle Bilder im Stil moody, cinematic bar photography
+- Dunkel, warm beleuchtet, atmosphärisch
+- Keine Menschen direkt im Vordergrund (Stimmung > Portrait)
+- Negative Space erlaubt
+
+================================================================================
+
+=== Abbaubar ===
+Filename: abbaubar.jpg
+Prompt: A moody bar interior photograph of an industrial deconstructed bar in Hamburg, rusty metal beams and recycled factory parts as decor, low hanging Edison bulbs casting warm amber light, three separate small glasses arranged in a row on a weathered copper bar top, steam pipes running along the ceiling, dark atmospheric photography, editorial style, 35mm film grain
+
+=== Abbildbar ===
+Filename: abbildbar.jpg
+Prompt: A moody bar interior photograph of a photography-themed bar in Berlin, walls covered with vintage cameras and developing equipment, warm amber Edison lights reflecting off glass display cases, darkroom enlargers used as lamp bases, black and white photographs covering every surface, a long mahogany bar with illuminated cocktail glasses, atmospheric and intimate, editorial photography style
+
+=== Abdichtbar ===
+Filename: abdichtbar.jpg
+Prompt: A moody bar interior photograph of an underground maritime bar in Hamburg, low ceilings with ship waterproofing material as decoration, warm glowing porthole-style lights, weathered teak wood walls, rubber boots displayed at the entrance, dark nautical atmosphere with brass fixtures, dramatic shadows and warm amber tones, editorial photography style
+
+=== Abgrenzbar ===
+Filename: abgrenzbar.jpg
+Prompt: A moody bar interior photograph of a Japanese-style pod bar in Munich, individual private booths with frosted glass panels and soft warm lighting, minimalist design with wood and concrete, tablet ordering screens glowing softly, translucent curtains between booths, intimate and quiet atmosphere, no people visible, clean editorial photography
+
+=== Abhörbar ===
+Filename: abhoerbar.jpg
+Prompt: A moody bar interior photograph of a Cold War surveillance-themed bar in Berlin, authentic East German listening device equipment as wall decorations, reel-to-reel tape machines, old telephone handsets, dim greenish surveillance light, mahogany bar with classified files stacked neatly, mysterious atmosphere with long shadows, documentary photography style, slight grain
+
+=== Ableitbar ===
+Filename: ableitbar.jpg
+Prompt: A moody bar interior photograph of a philosophy-themed bar in Vienna, dark wood paneling and leather chesterfield chairs, walls covered with handwritten philosophical propositions on chalkboards, warm candlelight and brass lamps, a female bartender contemplating over spirits bottles, dense atmosphere of intellect and smoke, Viennese coffee house meets speakeasy aesthetic
+
+=== Abrufbar ===
+Filename: abrufbar.jpg
+Prompt: A moody bar interior photograph of a memory-themed bar in Frankfurt, warm amber lighting over a long dark mahogany bar, a bartender looking at a tablet displaying a customer history, vintage filing cabinets repurposed as shelving for bottles, small card catalog drawers used as menu holders, intimate atmosphere, sophisticated and slightly melancholy editorial photography
+
+=== Absehbar ===
+Filename: absehbar.jpg
+Prompt: A moody bar interior photograph of a fortune-telling bar in Leipzig, cozy bohemian atmosphere with crystal balls used as decorative ice buckets, old weather instruments and probability charts on the walls, a female bartender writing in a leather notebook, warm candlelight and mismatched vintage furniture, intimate connewitz neighbourhood vibe, documentary photography style
+
+=== Absicherbar ===
+Filename: absicherbar.jpg
+Prompt: A moody bar interior photograph of a Swiss insurance-themed bar in Zurich, walls covered with framed insurance policies and certificates, a suited bartender presenting a cocktail alongside a miniature document, dark wood paneling and red leather chairs, formal atmosphere with absurdist humorous details, warm and sophisticated lighting, satirical editorial photography
+
+=== Abspielbar ===
+Filename: abspielbar.jpg
+Prompt: A moody bar interior photograph of a vinyl record bar in Vienna, thousands of records stacked on floor-to-ceiling shelves, a DJ booth integrated into the bar corner, warm amber and orange lighting, turntables prominently placed, guests sitting on mismatched velvet chairs, a bartender mixing cocktails while listening intently, cozy and intimate atmosphere, analog warmth, film photography aesthetic
+
+=== Abstimmbar ===
+Filename: abstimmbar.jpg
+Prompt: A moody bar interior photograph of a Swiss democratic-themed bar in Bern, walls covered with framed voting results and referendum posters, guests holding small voting cards, a digital display showing current vote tallies, clean Swiss design aesthetic with red and white accents, warm and convivial atmosphere, documentary photography style with slight grain
+
+=== Abwählbar ===
+Filename: abwaehlbar.jpg
+Prompt: A moody bar interior photograph of a political-voting themed bar in Cologne Ehrenfeld, chalkboard walls with crossed-out drinks and voting tallies, a female bartender dramatically pouring out a last bottle, industrial Ehrenfeld aesthetic with exposed brick and vintage neon signs, creative community bar atmosphere, documentary photography with grain
+
+=== Abwandelbar ===
+Filename: abwandelbar.jpg
+Prompt: A moody bar interior photograph of a classics-variation themed bar in Stuttgart, elegant dark interior with a menu board showing side-by-side originals and variations, bottles arranged in pairs, a thoughtful male bartender studying recipe notes, warm sophisticated lighting with green accents, refined editorial bar photography
+
+=== Abzählbar ===
+Filename: abzaehlbar.jpg
+Prompt: A moody bar interior photograph of a counting-rhyme folklore themed bar in Nuremberg, warm and quirky interior with illustrated nursery rhyme murals on exposed brick walls, customers playfully pointing at each other in the foreground, a female bartender with academic glasses and warm smile, golden candlelight, community bar atmosphere, editorial photography style
+
+=== Aktivierbar ===
+Filename: aktivierbar.jpg
+Prompt: A moody bar interior photograph of an energy-reactive bar in Munich Glockenbach, dynamic lighting that shifts from dim to bright across the room, modern interior with exposed concrete and neon accent lights, a lively crowd activating the space, a female bartender behind a sleek bar, the room glowing with increasing energy, editorial nightlife photography
+
+================================================================================
+[Weitere Prompts werden nach vollständiger Generierung via `node scripts/generate-bars.mjs` hinzugefügt]
+================================================================================
