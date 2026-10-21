@@ -2,14 +2,18 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import barsData from "../../../../data/bars.json";
 import CopyButton from "../../../components/CopyButton";
+import NavigationKeys from "../../../components/NavigationKeys";
 import { getBarImageUrl } from "../../../lib/bar-images";
 
+// Only bars that have a local photo
+const BARS_WITH_IMAGES = barsData.filter((b) => getBarImageUrl(b));
+
 export async function generateStaticParams() {
-  return barsData.map((bar) => ({ slug: bar.slug }));
+  return BARS_WITH_IMAGES.map((bar) => ({ slug: bar.slug }));
 }
 
 export async function generateMetadata({ params }) {
-  const bar = barsData.find((b) => b.slug === params.slug);
+  const bar = BARS_WITH_IMAGES.find((b) => b.slug === params.slug);
   if (!bar) return {};
   return {
     title: `${bar.name} — Lieblingsbars`,
@@ -17,18 +21,18 @@ export async function generateMetadata({ params }) {
     openGraph: {
       title: bar.name,
       description: bar.tagline,
-      ...(getBarImageUrl(bar) ? { images: [getBarImageUrl(bar)] } : {}),
+      images: [getBarImageUrl(bar)],
     },
   };
 }
 
 export default function BarPage({ params }) {
-  const idx = barsData.findIndex((b) => b.slug === params.slug);
+  const idx = BARS_WITH_IMAGES.findIndex((b) => b.slug === params.slug);
   if (idx === -1) notFound();
 
-  const bar = barsData[idx];
-  const prev = idx > 0 ? barsData[idx - 1] : null;
-  const next = idx < barsData.length - 1 ? barsData[idx + 1] : null;
+  const bar = BARS_WITH_IMAGES[idx];
+  const prev = idx > 0 ? BARS_WITH_IMAGES[idx - 1] : null;
+  const next = idx < BARS_WITH_IMAGES.length - 1 ? BARS_WITH_IMAGES[idx + 1] : null;
 
   const paragraphs = bar.blogContent
     ? bar.blogContent.split(/\n\n+/).filter(Boolean)
@@ -36,30 +40,42 @@ export default function BarPage({ params }) {
 
   return (
     <>
+      <NavigationKeys prevSlug={prev?.slug} nextSlug={next?.slug} />
+
       <nav className="nav">
         <div className="nav-inner">
-          <Link href="/" className="nav-logo">Lieblingsbars</Link>
-          <span className="nav-count">#{String(bar.id).padStart(3, "0")} / {barsData.length}</span>
+          <Link href="/" className="nav-logo nav-back">
+            ← Lieblingsbars
+          </Link>
+          <span className="nav-count">
+            {idx + 1} / {BARS_WITH_IMAGES.length}
+          </span>
         </div>
       </nav>
 
-      {/* Hero image */}
-      {getBarImageUrl(bar) && (
-        <div className="detail-hero-wrap">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            className="detail-hero-img"
-            src={getBarImageUrl(bar)}
-            alt={bar.name}
-            width={1200}
-            height={600}
-          />
-        </div>
-      )}
+      {/* Hero image with overlay navigation */}
+      <div className="detail-hero-wrap">
+        {prev && (
+          <Link href={`/bar/${prev.slug}/`} className="hero-nav hero-nav-prev" aria-label={prev.name}>
+            ‹
+          </Link>
+        )}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          className="detail-hero-img"
+          src={getBarImageUrl(bar)}
+          alt={bar.name}
+          width={1200}
+          height={600}
+        />
+        {next && (
+          <Link href={`/bar/${next.slug}/`} className="hero-nav hero-nav-next" aria-label={next.name}>
+            ›
+          </Link>
+        )}
+      </div>
 
       <main className="detail-layout">
-        <Link href="/" className="detail-back">← Alle Bars</Link>
-
         <p className="detail-eyebrow">Bar #{String(bar.id).padStart(3, "0")}</p>
         <h1 className="detail-name">{bar.name}</h1>
         <p className="detail-tagline">{bar.tagline}</p>
