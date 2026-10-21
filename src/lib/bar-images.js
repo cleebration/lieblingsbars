@@ -8,22 +8,10 @@ const LOCAL_IMAGES = new Set([
   "ausbaubar","ausblendbar","ausfuehrbar","aushaltbar","auslagerbar","ausloesbar","auslesbar","ausschaltbar","austauschbar","auswaehlbar",
 ]);
 
-export function getBarImageUrl(bar, width = 400, height = 225) {
+export function getBarImageUrl(bar) {
   const slug = typeof bar === 'object' ? bar.slug : null;
-  
-  // Use local image if available
   if (slug && LOCAL_IMAGES.has(slug)) {
     return `/bars/${slug}.jpg`;
   }
-  
-  // Fallback: Pollinations.ai
-  let prompt;
-  if (typeof bar === 'object' && bar?.imagePrompt) {
-    prompt = bar.imagePrompt;
-  } else {
-    prompt = 'moody bar interior, amber lighting, dark atmospheric, editorial photography, film grain';
-  }
-  const encoded = encodeURIComponent(prompt);
-  const seed = typeof bar === 'object' ? bar.id : bar;
-  return `https://image.pollinations.ai/prompt/${encoded}?width=${width}&height=${height}&seed=${seed}&nologo=true&enhance=false`;
+  return null;
 }

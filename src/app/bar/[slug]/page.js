@@ -17,7 +17,7 @@ export async function generateMetadata({ params }) {
     openGraph: {
       title: bar.name,
       description: bar.tagline,
-      images: [getBarImageUrl(bar, 1200, 630)],
+      ...(getBarImageUrl(bar) ? { images: [getBarImageUrl(bar)] } : {}),
     },
   };
 }
@@ -44,16 +44,18 @@ export default function BarPage({ params }) {
       </nav>
 
       {/* Hero image */}
-      <div className="detail-hero-wrap">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          className="detail-hero-img"
-          src={getBarImageUrl(bar, 1200, 600)}
-          alt={bar.name}
-          width={1200}
-          height={600}
-        />
-      </div>
+      {getBarImageUrl(bar) && (
+        <div className="detail-hero-wrap">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            className="detail-hero-img"
+            src={getBarImageUrl(bar)}
+            alt={bar.name}
+            width={1200}
+            height={600}
+          />
+        </div>
+      )}
 
       <main className="detail-layout">
         <Link href="/" className="detail-back">← Alle Bars</Link>

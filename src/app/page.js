@@ -5,13 +5,16 @@ import Link from "next/link";
 import barsData from "../../data/bars.json";
 import { getBarImageUrl } from "../lib/bar-images";
 
+// Only bars that have a local photo
+const BARS_WITH_IMAGES = barsData.filter((b) => getBarImageUrl(b));
+
 export default function HomePage() {
   const [search, setSearch] = useState("");
 
   const filtered = useMemo(() => {
     const q = search.toLowerCase().trim();
-    if (!q) return barsData;
-    return barsData.filter(
+    if (!q) return BARS_WITH_IMAGES;
+    return BARS_WITH_IMAGES.filter(
       (b) =>
         b.name.toLowerCase().includes(q) ||
         b.tagline?.toLowerCase().includes(q) ||
@@ -25,7 +28,7 @@ export default function HomePage() {
       <nav className="nav">
         <div className="nav-inner">
           <span className="nav-logo">Lieblingsbars</span>
-          <span className="nav-count">{barsData.length} Bars</span>
+          <span className="nav-count">{BARS_WITH_IMAGES.length} Bars</span>
         </div>
       </nav>
 
@@ -48,7 +51,7 @@ export default function HomePage() {
             onChange={(e) => setSearch(e.target.value)}
           />
           <span className="filter-count">
-            {filtered.length} / {barsData.length}
+            {filtered.length} / {BARS_WITH_IMAGES.length}
           </span>
         </div>
       </div>
@@ -64,7 +67,7 @@ export default function HomePage() {
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     className="card-image"
-                    src={getBarImageUrl(bar, 400, 225)}
+                    src={getBarImageUrl(bar)}
                     alt={bar.name}
                     loading="lazy"
                     width={400}
