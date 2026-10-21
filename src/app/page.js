@@ -63,7 +63,7 @@ export default function HomePage() {
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     className="card-image"
-                    src={`https://picsum.photos/seed/${bar.slug}/400/225`}
+                    src={`https://loremflickr.com/400/225/bar,pub,cocktailbar?lock=${bar.id}`}
                     alt={bar.name}
                     loading="lazy"
                     width={400}

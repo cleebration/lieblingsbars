@@ -16,7 +16,7 @@ export async function generateMetadata({ params }) {
     openGraph: {
       title: bar.name,
       description: bar.tagline,
-      images: [`https://picsum.photos/seed/${bar.slug}/1200/630`],
+      images: [`https://loremflickr.com/1200/630/bar,pub,cocktailbar?lock=${bar.id}`],
     },
   };
 }
@@ -47,7 +47,7 @@ export default function BarPage({ params }) {
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           className="detail-hero-img"
-          src={`https://picsum.photos/seed/${bar.slug}/1200/600`}
+          src={`https://loremflickr.com/1200/600/bar,pub,cocktailbar?lock=${bar.id}`}
           alt={bar.name}
           width={1200}
           height={600}
