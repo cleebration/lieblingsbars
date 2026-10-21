@@ -33,7 +33,7 @@ export default function HomePage() {
         <p className="hero-eyebrow">Eine fiktive Bar für jeden Augenblick</p>
         <h1>Lieb&shy;lings&shy;bars</h1>
         <p className="hero-sub">
-          318 fiktive Bars — jede benannt nach einem deutschen Adjektiv auf -bar.
+          299 fiktive Bars — jede benannt nach einem deutschen Adjektiv auf -bar.
           Manche machbar, manche kaum vorstellbar.
         </p>
       </section>
