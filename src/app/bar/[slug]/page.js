@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import barsData from "../../../../data/bars.json";
 import CopyButton from "../../../components/CopyButton";
+import { getBarImageUrl } from "../../../lib/bar-images";
 
 export async function generateStaticParams() {
   return barsData.map((bar) => ({ slug: bar.slug }));
@@ -16,7 +17,7 @@ export async function generateMetadata({ params }) {
     openGraph: {
       title: bar.name,
       description: bar.tagline,
-      images: [`https://loremflickr.com/1200/630/bar,pub,cocktailbar?lock=${bar.id}`],
+      images: [getBarImageUrl(bar, 1200, 630)],
     },
   };
 }
@@ -47,7 +48,7 @@ export default function BarPage({ params }) {
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           className="detail-hero-img"
-          src={`https://loremflickr.com/1200/600/bar,pub,cocktailbar?lock=${bar.id}`}
+          src={getBarImageUrl(bar, 1200, 600)}
           alt={bar.name}
           width={1200}
           height={600}

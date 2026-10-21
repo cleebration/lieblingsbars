@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react";
 import Link from "next/link";
 import barsData from "../../data/bars.json";
+import { getBarImageUrl } from "../lib/bar-images";
 
 export default function HomePage() {
   const [search, setSearch] = useState("");
@@ -63,7 +64,7 @@ export default function HomePage() {
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     className="card-image"
-                    src={`https://loremflickr.com/400/225/bar,pub,cocktailbar?lock=${bar.id}`}
+                    src={getBarImageUrl(bar, 400, 225)}
                     alt={bar.name}
                     loading="lazy"
                     width={400}
