@@ -1,206 +1,89 @@
-# MyW – Meine Lieblingsbars 🍸
+# Lieblingsbars
 
-> 318 fiktive Bars. Jede ein Universum. Von Abbaubar bis Zuweisbar.
+318 fiktive Bars — jede benannt nach einem deutschen Adjektiv auf -bar.
 
-Ein Blog-Universum basierend auf deutschen Adjektiven auf „-bar" — jede Bar hat ihren eigenen Blogbeitrag, Signature Drink, Nano Banana Bild-Prompt und Social Media Content.
+## Stack
 
----
+- **Next.js 14** mit Static Export (`output: "export"`)
+- **Anthropic API** für Content-Generierung
+- **Vercel** für Hosting
+- **Nano Banana** für KI-generierte Barbilder
 
-## 🗂 Projektstruktur
-
-```
-lieblingsbars/
-├── data/
-│   ├── bars.json                  # Alle Bar-Daten (generiert)
-│   ├── bar-names.js               # Rohe Liste aller 318 Bar-Namen
-│   └── image-manifest.json        # Bild-Status (nach add-images.mjs)
-├── scripts/
-│   ├── generate-bars.mjs          # Content-Generierung via Anthropic API
-│   ├── add-images.mjs             # Bild-Manifest updaten
-│   └── export-buffer.mjs          # Buffer CSV exportieren
-├── public/
-│   └── images/                    # Nano Banana Bilder (slug.jpg)
-├── social-media/
-│   ├── STRATEGY.md                # Social Media Strategie
-│   ├── buffer-schedule.csv        # Buffer Import-Datei
-│   └── image-prompts-for-nano-banana.txt  # Alle Image Prompts
-├── src/
-│   ├── app/
-│   │   ├── layout.js
-│   │   ├── globals.css
-│   │   ├── page.js                # Homepage mit Suchfunktion
-│   │   └── bar/[slug]/page.js     # Einzelne Bar-Seite
-│   └── components/
-│       └── CopyButton.js
-├── next.config.mjs
-└── package.json
-```
-
----
-
-## 🚀 Setup
-
-### 1. Abhängigkeiten installieren
+## Setup
 
 ```bash
 npm install
 ```
 
-### 2. Content generieren (alle 318 Bars)
+## Content generieren
 
 ```bash
-ANTHROPIC_API_KEY=sk-ant-... npm run generate
+# API-Key setzen
+export ANTHROPIC_API_KEY=sk-ant-...
+
+# Alle 318 Bars generieren (resume-safe)
+npm run generate
+
+# Nur eine bestimmte Range
+node scripts/generate-bars.mjs --from=1 --to=50
+
+# Nur eine Bar
+node scripts/generate-bars.mjs --only=Wunderbar
+
+# In Batches (z.B. 20 auf einmal)
+node scripts/generate-bars.mjs --batch=20
 ```
 
-**Optionen:**
-```bash
-# Ab einer bestimmten Bar weitermachen (nach Unterbrechung)
-ANTHROPIC_API_KEY=... node scripts/generate-bars.mjs --from=50
-
-# Nur eine bestimmte Bar (testen)
-ANTHROPIC_API_KEY=... node scripts/generate-bars.mjs --only=Wunderbar
-
-# Bereich eingrenzen
-ANTHROPIC_API_KEY=... node scripts/generate-bars.mjs --from=0 --to=30
-```
-
-> **Tipp:** Die Generierung ist resume-safe — sie überspringt bereits generierte Bars.
-> Die 318 Bars brauchen bei ~0,5s pro Request ca. 3-4 Minuten.
-
-### 3. Bilder via Nano Banana generieren
-
-Alle Prompts findest du in:
-```
-social-media/image-prompts-for-nano-banana.txt
-```
-
-Nach der vollständigen Generierung (Schritt 2) werden alle 318 Prompts dort gespeichert.
-
-**Workflow:**
-1. Öffne `image-prompts-for-nano-banana.txt`
-2. Für jede Bar den Prompt in Nano Banana eingeben
-3. Bild speichern als: `<slug>.jpg` (z.B. `wunderbar.jpg`)
-4. In `public/images/` ablegen
-5. Manifest updaten: `node scripts/add-images.mjs`
-
-### 4. Website lokal testen
+## Lokal entwickeln
 
 ```bash
 npm run dev
+# → http://localhost:3000
 ```
 
-→ Öffne [http://localhost:3000](http://localhost:3000)
-
----
-
-## 📤 Deployment auf GitHub + Vercel
-
-### GitHub Repository erstellen
+## Bauen & deployen
 
 ```bash
-# Im Projektordner:
-git init
-git add .
-git commit -m "feat: MyW Lieblingsbars initial commit"
-
-# GitHub Repository erstellen (auf github.com/new)
-git remote add origin https://github.com/DEIN-USERNAME/lieblingsbars.git
-git push -u origin main
+npm run build
+# → ./out/ (statische HTML-Dateien)
 ```
 
-### Vercel verbinden
+Vercel deployed automatisch bei jedem Push auf `main`.
 
-1. Gehe zu [vercel.com](https://vercel.com)
-2. **New Project** → **Import Git Repository**
-3. Wähle `lieblingsbars` aus deinem GitHub Account
-4. **Framework Preset:** Next.js (automatisch erkannt)
-5. **Root Directory:** `.` (Projektroot)
-6. **Build Command:** `npm run build`
-7. **Output Directory:** `out`
-8. **Deploy** klicken
+## Social Media
 
-✅ Vercel deployed automatisch bei jedem `git push`!
-
-### Domain konfigurieren
-
-In Vercel → Settings → Domains:
-- `lieblingsbars.at` oder `meinelieblingsbar.at` hinzufügen
-- DNS bei deinem Provider auf Vercel zeigen
-
----
-
-## 📱 Social Media mit Buffer
-
-### Buffer CSV importieren
+Social-Media-Texte exportieren:
 
 ```bash
-# Buffer CSV generieren (mit deiner Website-URL):
-node scripts/export-buffer.mjs --site=https://lieblingsbars.vercel.app
+npm run export-social
+# → social-media/social-export.csv (für beliebige Scheduling-Tools)
+# → social-media/social-plan.md (Übersicht)
+# → social-media/image-prompts-for-nano-banana.txt
 ```
 
-Dann in Buffer:
-1. **Publish** → **Import** → **CSV**
-2. Datei `social-media/buffer-schedule.csv` hochladen
-3. Posting-Kanäle zuweisen (X, Instagram, Facebook)
-4. Bilder zu Posts hinzufügen (aus `public/images/`)
+**Workflow:**
+1. Bildprompt von der Website kopieren (Kopieren-Button auf jeder Bar-Seite)
+2. In Nano Banana einfügen → Bild generieren
+3. Text aus `social-export.csv` oder direkt von der Website nehmen
+4. In Scheduling-Tool (Later, Hootsuite, etc.) einplanen oder manuell posten
 
-**Posting-Plan:**
-- 🐦 X/Twitter: 10:00 Uhr täglich
-- 📸 Instagram: 12:00 Uhr täglich  
-- 👥 Facebook: 18:00 Uhr täglich
-
-### Bilder in Buffer
-
-Für beste Ergebnisse: Bilder direkt in Buffer uploaden oder
-die Bild-URLs von deiner gehosteten Website verwenden:
-```
-https://lieblingsbars.vercel.app/images/wunderbar.jpg
-```
-
----
-
-## 🔄 Workflow nach der Ersteinrichtung
+## Projektstruktur
 
 ```
-Tag 1: node scripts/generate-bars.mjs   # Alle Inhalte generieren
-Tag 2: Nano Banana Bilder erstellen      # Mit den Prompts
-Tag 3: node scripts/add-images.mjs      # Bilder einchecken
-Tag 4: git push                         # Auto-Deploy via Vercel
-Tag 5: Buffer CSV importieren           # Social Posts planen
+lieblingsbars/
+├── data/
+│   ├── bars.json          # Generierte Inhalte (318 Bars)
+│   └── bar-names.js       # Alle 318 Bar-Namen
+├── scripts/
+│   ├── generate-bars.mjs  # Anthropic API Generator
+│   └── export-social.mjs  # Social Media CSV Export
+├── social-media/
+│   ├── STRATEGY.md        # Social Media Strategie
+│   ├── social-export.csv  # (nach Export)
+│   ├── social-plan.md     # (nach Export)
+│   └── image-prompts-for-nano-banana.txt
+├── src/
+│   └── app/               # Next.js App Router
+└── public/
+    └── images/            # Nano Banana Bilder (manuell ablegen)
 ```
-
----
-
-## 📝 Content-Update (einzelne Bar nachbearbeiten)
-
-```bash
-# Eine Bar neu generieren:
-ANTHROPIC_API_KEY=... node scripts/generate-bars.mjs --only=Wunderbar
-```
-
-Dann: `git add data/bars.json && git commit -m "update: Wunderbar" && git push`
-
----
-
-## 🛠 Scripts Übersicht
-
-| Script | Beschreibung |
-|--------|-------------|
-| `npm run dev` | Lokale Entwicklung |
-| `npm run build` | Production Build |
-| `npm run generate` | Alle 318 Bars via Anthropic API generieren |
-| `node scripts/add-images.mjs` | Bild-Manifest nach Nano Banana Update |
-| `node scripts/export-buffer.mjs` | Buffer CSV neu exportieren |
-
----
-
-## 🎨 Design
-
-Die Website nutzt ein **dunkles, editoriales Magazin-Aesthetic**:
-- **Schriften:** Playfair Display (Display), DM Mono (Monospace), DM Sans (Body)
-- **Farben:** Tiefes Schwarz + warme Bernstein/Gold-Akzente
-- **Stil:** High-end Bar Guide trifft Underground-Zine
-
----
-
-*MyW – Meine Lieblingsbars · 318 Bars · Eine Welt*

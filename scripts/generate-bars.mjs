@@ -1,252 +1,215 @@
 #!/usr/bin/env node
 /**
  * generate-bars.mjs
- * Generates all bar content (blog posts, image prompts, social media) 
- * via Anthropic API and writes to data/bars.json
+ * Generates content for all bars using the Anthropic API.
+ * Resume-safe: skips already-generated entries.
  *
- * Usage: ANTHROPIC_API_KEY=your_key node scripts/generate-bars.mjs
- * Options:
- *   --from=50    Start from bar index 50 (resume after interruption)
- *   --to=100     Stop at bar index 100
- *   --only=Wunderbar  Generate only one specific bar
+ * Usage:
+ *   node scripts/generate-bars.mjs              # all bars
+ *   node scripts/generate-bars.mjs --from=50    # start from bar 50
+ *   node scripts/generate-bars.mjs --to=100     # stop at bar 100
+ *   node scripts/generate-bars.mjs --only=Wunderbar
+ *   node scripts/generate-bars.mjs --batch=10   # generate N then stop
  */
 
 import Anthropic from "@anthropic-ai/sdk";
-import fs from "fs";
-import path from "path";
+import { readFileSync, writeFileSync, existsSync, mkdirSync } from "fs";
 import { fileURLToPath } from "url";
+import { dirname, join } from "path";
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const DATA_FILE = path.join(__dirname, "../data/bars.json");
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const ROOT = join(__dirname, "..");
+const BARS_JSON = join(ROOT, "data", "bars.json");
+const NAMES_FILE = join(ROOT, "data", "bar-names.js");
 
-const barNames = [
-  "Abbaubar","Abbildbar","Abdichtbar","Abgrenzbar","Abhörbar","Ableitbar","Abrufbar",
-  "Absehbar","Absicherbar","Abspielbar","Abstimmbar","Abwählbar","Abwandelbar","Abzählbar",
-  "Aktivierbar","Analysierbar","Anfechtbar","Angreifbar","Anpassbar","Anrechenbar",
-  "Anrufbar","Anschließbar","Ansprechbar","Anwendbar","Anzeigbar","Anzweifelbar",
-  "Auffindbar","Aufblasbar","Aufladbar","Aufzeichenbar","Ausbaubar","Ausblendbar",
-  "Ausführbar","Aushaltbar","Auslagerbar","Auslösbar","Auslesbar","Ausschaltbar",
-  "Austauschbar","Auswählbar","Auswertbar","Auszahlbar","Automatisierbar",
-  "Bearbeitbar","Bebaubar","Bedienbar","Bedruckbar","Beeinflussbar","Befahrbar",
-  "Begehbar","Begrenzbar","Behebbar","Beheizbar","Bekämpfbar","Belastbar",
-  "Beleuchtbar","Bemerkbar","Benutzbar","Beobachtbar","Berechenbar","Beschreibbar",
-  "Besetzbar","Bestellbar","Bestechbar","Besteuerbar","Betreibbar","Bewohnbar",
-  "Bezahlbar","Bezwingbar","Biegbar","Brauchbar","Buchbar",
-  "Codierbar",
-  "Darstellbar","Datierbar","Deaktivierbar","Dehnbar","Definierbar","Delegierbar",
-  "Denkbar","Digitalisierbar","Dokumentierbar","Druckbar","Durchführbar",
-  "Einbaubar","Eingrenzbar","Einplanbar","Einschaltbar","Einstellbar","Einteilbar",
-  "Erfahrbar","Erfassbar","Erfüllbar","Erkennbar","Erklärbar","Erlebbar",
-  "Ermittelbar","Erpressbar","Erreichbar","Ersetzbar","Erweiterbar","Erzwingbar",
-  "Essbar","Exportierbar",
-  "Fahrbar","Faltbar","Fassbar","Filterbar","Finanzierbar","Findbar","Fixierbar",
-  "Formbar","Formatierbar","Fühlbar",
-  "Generierbar","Geniessbar","Greifbar",
-  "Haftbar","Haltbar","Handhabbar","Härtbar","Heilbar","Heizbar","Herstellbar",
-  "Herzeigbar","Hörbar",
-  "Importierbar","Installierbar","Integrierbar",
-  "Kategorisierbar","Klappbar","Klärbar","Klonbar","Kombinierbar","Komprimierbar",
-  "Konfigurierbar","Kontrollierbar","Konvertierbar","Kopierbar","Korrigierbar",
-  "Korrumpierbar","Kündbar","Küssbar",
-  "Ladbar","Lagerbar","Lehrbar","Lenkbar","Lernbar","Lesbar","Lieferbar",
-  "Lokalisierbar","Lösbar",
-  "Machbar","Manipulierbar","Messbar","Mietbar","Mischbar","Modifizierbar",
-  "Nachvollziehbar","Nachweisbar","Navigierbar","Nennbar","Normierbar","Nutzbar",
-  "Optimierbar",
-  "Personalisierbar","Pflegbar","Planbar","Portierbar","Positionierbar",
-  "Programmierbar","Protokollierbar","Prüfbar",
-  "Quantifizierbar",
-  "Realisierbar","Recycelbar","Reduzierbar","Referenzierbar","Registrierbar",
-  "Regelbar","Reparierbar","Reproduzierbar","Rettbar","Rockbar","Rollbar","Rutschbar",
-  "Sagbar","Schaltbar","Schätzbar","Scheinbar","Schmelzbar","Schneidbar","Schreibbar",
-  "Schwimmbar","Sicherbar","Sichtbar","Simulierbar","Skalierbar","Sonderbar",
-  "Sortierbar","Speicherbar","Sperrbar","Spielbar","Spülbar","Spürbar","Steuerbar",
-  "Strafbar","Suchbar","Synchronisierbar",
-  "Tastbar","Tauschbar","Teilbar","Testbar","Tragbar","Transportierbar","Trennbar",
-  "Trinkbar",
-  "Übersetzbar","Übertragbar","Überwindbar","Umgehbar","Umkehrbar","Umrechenbar",
-  "Umsetzbar","Umwandelbar",
-  "Unabsehbar","Unberechenbar","Unbrauchbar","Unessbar","Unfassbar","Unhaltbar",
-  "Unheilbar","Unlenkbar","Unnahbar","Unsagbar","Unscheinbar","Unschlagbar",
-  "Unsichtbar","Unspielbar","Untrennbar","Unumkehrbar","Unvermeidbar","Unvorstellbar",
-  "Unwählbar","Unterscheidbar",
-  "Validierbar","Veränderbar","Verarbeitbar","Verbesserbar","Verdaubar","Verdoppelbar",
-  "Vereinbar","Vereinfachbar","Vererbbar","Verformbar","Vergessbar","Vergleichbar",
-  "Verhandelbar","Verhinderbar","Verkaufbar","Verknüpfbar","Verkürzbar","Verlängerbar",
-  "Vermeidbar","Vermietbar","Verrechenbar","Verschiebbar","Verschlüsselbar",
-  "Versicherbar","Versetzbar","Vertretbar","Verwaltbar","Verwechselbar","Verwendbar",
-  "Verwertbar","Verwundbar","Vervielfältigbar","Verzeihbar","Verzichtbar",
-  "Visualisierbar","Vorstellbar",
-  "Wählbar","Wandelbar","Waschbar","Weiterleitbar","Widerlegbar","Wiederholbar",
-  "Wiederverwendbar","Wunderbar",
-  "Zahlbar","Zählbar","Zerlegbar","Zitierbar","Zumutbar","Zurücksetzbar",
-  "Zurückverfolgbar","Zusammenlegbar","Zuteilbar","Zuweisbar"
-];
+// ── Parse CLI args ──
+const args = Object.fromEntries(
+  process.argv.slice(2)
+    .filter(a => a.startsWith("--"))
+    .map(a => {
+      const [k, v] = a.slice(2).split("=");
+      return [k, v ?? true];
+    })
+);
+
+const FROM = args.from ? parseInt(args.from) : 1;
+const TO = args.to ? parseInt(args.to) : Infinity;
+const ONLY = args.only ?? null;
+const BATCH = args.batch ? parseInt(args.batch) : Infinity;
+
+// ── Load names ──
+const namesContent = readFileSync(NAMES_FILE, "utf-8");
+const match = namesContent.match(/\[([^\]]+)\]/s);
+const barNames = match
+  ? match[1].split(",").map(n => n.trim().replace(/^"|"$/g, "").replace(/'/g, "")).filter(Boolean)
+  : [];
+
+console.log(`📋 Loaded ${barNames.length} bar names`);
+
+// ── Load existing data ──
+let existing = [];
+if (existsSync(BARS_JSON)) {
+  try {
+    existing = JSON.parse(readFileSync(BARS_JSON, "utf-8"));
+    console.log(`📂 Found ${existing.length} existing bars in bars.json`);
+  } catch {
+    console.log("⚠️  Could not parse bars.json, starting fresh");
+  }
+}
+
+const existingNames = new Set(existing.map(b => b.name));
+
+// ── Filter names to generate ──
+let toGenerate = barNames
+  .map((name, i) => ({ name, id: i + 1 }))
+  .filter(({ id }) => id >= FROM && id <= TO)
+  .filter(({ name }) => !ONLY || name === ONLY)
+  .filter(({ name }) => !existingNames.has(name));
+
+if (toGenerate.length === 0) {
+  console.log("✅ All bars already generated!");
+  exportImagePrompts(existing);
+  process.exit(0);
+}
+
+if (BATCH < Infinity) {
+  toGenerate = toGenerate.slice(0, BATCH);
+}
+
+console.log(`🎯 Generating ${toGenerate.length} bars (${FROM}–${Math.min(TO, barNames.length)})`);
+
+// ── Anthropic client ──
+if (!process.env.ANTHROPIC_API_KEY) {
+  console.error("❌ Missing ANTHROPIC_API_KEY environment variable");
+  process.exit(1);
+}
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
-function toSlug(name) {
-  return name
-    .toLowerCase()
-    .replace(/ä/g, "ae").replace(/ö/g, "oe").replace(/ü/g, "ue")
-    .replace(/ß/g, "ss").replace(/[^a-z0-9]/g, "-");
+// ── German cities list ──
+const CITIES = [
+  { city: "Berlin", neighborhoods: ["Mitte", "Prenzlauer Berg", "Kreuzberg", "Neukölln", "Friedrichshain", "Charlottenburg", "Wedding", "Schöneberg"] },
+  { city: "Hamburg", neighborhoods: ["Schanzenviertel", "Altona", "St. Pauli", "Ottensen", "Eimsbüttel", "Barmbek", "Winterhude"] },
+  { city: "München", neighborhoods: ["Maxvorstadt", "Schwabing", "Glockenbachviertel", "Haidhausen", "Bogenhausen", "Au"] },
+  { city: "Köln", neighborhoods: ["Ehrenfeld", "Nippes", "Deutz", "Südstadt", "Belgisches Viertel", "Mühlheim"] },
+  { city: "Frankfurt", neighborhoods: ["Bornheim", "Sachsenhausen", "Nordend", "Westend", "Bockenheim"] },
+  { city: "Leipzig", neighborhoods: ["Connewitz", "Plagwitz", "Lindenau", "Gohlis", "Schleußig"] },
+  { city: "Stuttgart", neighborhoods: ["West", "Heslach", "Degerloch", "Bad Cannstatt", "Feuerbach"] },
+  { city: "Düsseldorf", neighborhoods: ["Flingern", "Bilk", "Friedrichstadt", "Pempelfort", "Oberkassel"] },
+  { city: "Dresden", neighborhoods: ["Neustadt", "Pieschen", "Löbtau", "Striesen", "Gorbitz"] },
+  { city: "Hannover", neighborhoods: ["List", "Linden", "Oststadt", "Calenberger Neustadt"] },
+];
+
+function getCity(id) {
+  return CITIES[id % CITIES.length];
 }
 
-async function generateBarContent(name) {
-  const prompt = `Du bist Redakteur eines kultigen deutschen Bar-Blogs namens "MyW – Meine Lieblingsbars". 
-Erstelle Content für eine fiktive Bar namens "${name}".
+// ── Generate single bar ──
+async function generateBar(name, id) {
+  const { city, neighborhoods } = getCity(id);
+  const neighborhood = neighborhoods[id % neighborhoods.length];
 
-Der Name ist ein deutsches Adjektiv auf "-bar" und soll wörtlich als Barname interpretiert werden.
-Sei kreativ, witzig, leicht philosophisch und manchmal absurd – aber immer mit Stil.
+  const publishDate = new Date(2025, 0, 1 + (id - 1));
+  const dateStr = publishDate.toISOString().split("T")[0];
 
-Antworte NUR mit einem validen JSON-Objekt, ohne Markdown-Formatierung, ohne Backticks:
+  const prompt = `Du bist ein kreativer Barkultur-Autor. Erfinde eine fiktive Bar namens "${name}" in ${city} (Viertel: ${neighborhood}).
+
+Der Name "${name}" ist ein deutsches Adjektiv mit der Endung "-bar" (z.B. trinkbar, machbar, vorstellbar). Spiele mit der Bedeutung des Wortes.
+
+Antworte NUR mit einem validen JSON-Objekt (kein Markdown, kein Text drumherum):
 
 {
-  "tagline": "Ein kurzer, witziger Slogan für die Bar (max. 10 Wörter)",
-  "city": "Eine deutsche oder österreichische Stadt, die zur Bar-Persönlichkeit passt",
-  "neighborhood": "Ein passender Stadtteil",
-  "concept": "2-3 Sätze: Was macht diese Bar besonders? Wie ist das Konzept? Was servieren sie?",
-  "blogTitle": "Ein kreativer Titel für den Blogbeitrag (ohne den Barnamen)",
-  "blogContent": "4 Absätze à 3-4 Sätze: Ein kuriöser, lustiger, leicht nachdenklicher Blogbeitrag über die Bar. Erwähne Atmosphäre, Stammgäste, einen besonderen Drink, eine merkwürdige Geschichte oder ein Erlebnis. Schreibe im Präsens, persönlich und mit Witz. KEINE Markdown-Formatierung, NUR Fließtext mit \\n\\n zwischen den Absätzen.",
-  "signatureDrink": "Name eines Signature-Cocktails passend zur Bar",
-  "signatureDrinkDescription": "1 Satz Beschreibung des Cocktails",
-  "imagePrompt": "Ein detaillierter englischer Prompt für eine KI-Bildgenerierung. Beschreibe das Interieur oder die Außenansicht der Bar im Stil eines stimmungsvollen Nachtfoto. Inkl. Beleuchtung, Stil, Atmosphäre. Beginne mit: 'A moody bar interior/exterior photograph of '",
-  "tweet": "Ein Twitter/X-Post über die Bar, max. 240 Zeichen, mit 1-2 passenden Emojis und Hashtags wie #Lieblingsbars #MyW",
-  "instagram": "Ein Instagram-Caption mit 3-4 Sätzen, etwas poetischer, mit 5-8 relevanten Hashtags am Ende",
-  "facebook": "Ein Facebook-Post, etwas ausführlicher (4-5 Sätze), einladend und beschreibend"
+  "tagline": "Kurze, witzige/nachdenkliche Tagline (max. 8 Wörter)",
+  "concept": "2-3 Sätze Konzeptbeschreibung der Bar. Witzig, quirky, leicht absurd.",
+  "blogTitle": "Kreativer Blogtitel (kein Clickbait, etwas literarischer)",
+  "blogContent": "3-4 Absätze Blogbeitrag über diese Bar. Stil: feuilletonistisch, mit Humor und einer Prise Melancholie. Absätze durch doppelte Leerzeile trennen. Keine Überschriften.",
+  "signatureDrink": "Name des Signature Drinks",
+  "signatureDrinkDescription": "2-3 Sätze Beschreibung des Drinks — Zutaten, Geschmack, Wirkung.",
+  "imagePrompt": "A moody bar interior photograph of ${name}, [3-5 visual details that match the bar's concept and name], cinematic lighting, film grain, editorial photography, dark and atmospheric",
+  "tweet": "Tweet für X/Twitter (max 240 Zeichen, kein #hashtag-Spam, max 2 Tags, mit Emoji)",
+  "instagram": "Instagram-Caption (3-5 Sätze, atmosphärisch, mit 5-8 passenden Hashtags am Ende)",
+  "facebook": "Facebook-Post (entspannt, 2-3 Sätze, lädt zum Teilen ein)"
 }`;
 
-  const response = await client.messages.create({
+  const message = await client.messages.create({
     model: "claude-sonnet-4-20250514",
-    max_tokens: 1500,
-    messages: [{ role: "user", content: prompt }]
+    max_tokens: 1200,
+    messages: [{ role: "user", content: prompt }],
   });
 
-  const text = response.content[0].text.trim();
-  // Remove potential markdown code fences
-  const cleaned = text.replace(/^```json?\n?/, "").replace(/\n?```$/, "").trim();
-  return JSON.parse(cleaned);
+  const raw = message.content[0].text.trim();
+  const jsonMatch = raw.match(/\{[\s\S]*\}/);
+  if (!jsonMatch) throw new Error("No JSON found in response");
+
+  const data = JSON.parse(jsonMatch[0]);
+
+  return {
+    id,
+    name,
+    slug: name.toLowerCase()
+      .replace(/ä/g, "ae").replace(/ö/g, "oe").replace(/ü/g, "ue").replace(/ß/g, "ss")
+      .replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""),
+    publishDate: dateStr,
+    city,
+    neighborhood,
+    ...data,
+  };
 }
 
+// ── Main loop ──
 async function main() {
-  const args = process.argv.slice(2);
-  const fromArg = args.find(a => a.startsWith("--from="));
-  const toArg = args.find(a => a.startsWith("--to="));
-  const onlyArg = args.find(a => a.startsWith("--only="));
-  
-  const fromIdx = fromArg ? parseInt(fromArg.split("=")[1]) : 0;
-  const toIdx = toArg ? parseInt(toArg.split("=")[1]) : barNames.length;
-  const onlyName = onlyArg ? onlyArg.split("=")[1] : null;
+  let generated = 0;
+  let failed = 0;
 
-  // Load existing data
-  let existingBars = [];
-  if (fs.existsSync(DATA_FILE)) {
-    const raw = fs.readFileSync(DATA_FILE, "utf8");
-    existingBars = JSON.parse(raw);
-  }
-  const existingMap = new Map(existingBars.map(b => [b.name, b]));
-
-  const namesToProcess = onlyName 
-    ? [onlyName]
-    : barNames.slice(fromIdx, toIdx);
-
-  console.log(`\n🍹 MyW Bar Generator`);
-  console.log(`Processing ${namesToProcess.length} bars...\n`);
-
-  for (let i = 0; i < namesToProcess.length; i++) {
-    const name = namesToProcess[i];
-    const globalIdx = barNames.indexOf(name);
-    
-    if (existingMap.has(name)) {
-      console.log(`⏭  [${globalIdx + 1}/${barNames.length}] ${name} – already generated, skipping`);
-      continue;
-    }
-
-    process.stdout.write(`🔄 [${globalIdx + 1}/${barNames.length}] ${name}...`);
-    
+  for (const { name, id } of toGenerate) {
+    process.stdout.write(`  [${id}/${barNames.length}] ${name} … `);
     try {
-      const content = await generateBarContent(name);
-      const bar = {
-        id: globalIdx + 1,
-        name,
-        slug: toSlug(name),
-        publishDate: getPublishDate(globalIdx),
-        ...content
-      };
-      
-      existingMap.set(name, bar);
-      
+      const bar = await generateBar(name, id);
+
+      // Insert at correct position
+      const insertIdx = existing.findIndex(b => b.id > id);
+      if (insertIdx === -1) {
+        existing.push(bar);
+      } else {
+        existing.splice(insertIdx, 0, bar);
+      }
+
       // Save after each bar (resume-safe)
-      const allBars = barNames
-        .filter(n => existingMap.has(n))
-        .map(n => existingMap.get(n));
-      fs.writeFileSync(DATA_FILE, JSON.stringify(allBars, null, 2));
-      
-      console.log(` ✅ ${content.tagline}`);
-      
-      // Rate limiting: wait 500ms between requests
-      if (i < namesToProcess.length - 1) {
-        await new Promise(r => setTimeout(r, 500));
+      writeFileSync(BARS_JSON, JSON.stringify(existing, null, 2));
+      process.stdout.write(`✓ ${bar.city}\n`);
+      generated++;
+
+      // Small delay to be nice to the API
+      if (generated < toGenerate.length) {
+        await new Promise(r => setTimeout(r, 300));
       }
     } catch (err) {
-      console.log(` ❌ Error: ${err.message}`);
-      // Wait longer on error, then continue
-      await new Promise(r => setTimeout(r, 2000));
+      process.stdout.write(`✗ ${err.message}\n`);
+      failed++;
     }
   }
 
-  const finalBars = barNames
-    .filter(n => existingMap.has(n))
-    .map(n => existingMap.get(n));
-    
-  fs.writeFileSync(DATA_FILE, JSON.stringify(finalBars, null, 2));
-  
-  console.log(`\n✨ Done! Generated ${finalBars.length}/${barNames.length} bars.`);
-  console.log(`📁 Saved to data/bars.json\n`);
-  
-  // Generate image prompts file for nano banana
-  const promptsFile = finalBars.map(b => 
-    `=== ${b.name} ===\nFilename: ${b.slug}.jpg\nPrompt: ${b.imagePrompt}\n`
-  ).join("\n");
-  
-  fs.writeFileSync(
-    path.join(__dirname, "../social-media/image-prompts-for-nano-banana.txt"),
-    promptsFile
+  console.log(`\n✅ Done: ${generated} generated, ${failed} failed`);
+  console.log(`📊 Total bars in bars.json: ${existing.length}`);
+
+  // Export image prompts
+  exportImagePrompts(existing);
+}
+
+function exportImagePrompts(bars) {
+  const dir = join(ROOT, "social-media");
+  if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
+
+  const lines = bars.map(b =>
+    `=== ${b.name} (#${b.id}) ===\n${b.imagePrompt || "(kein Prompt)"}\n`
   );
-  console.log(`🎨 Image prompts saved to social-media/image-prompts-for-nano-banana.txt`);
-  
-  // Generate Buffer CSV
-  generateBufferCSV(finalBars);
+
+  const outPath = join(dir, "image-prompts-for-nano-banana.txt");
+  writeFileSync(outPath, lines.join("\n"));
+  console.log(`🖼  Image prompts exported: ${outPath}`);
 }
 
-function getPublishDate(index) {
-  const start = new Date("2025-01-01");
-  const date = new Date(start);
-  date.setDate(start.getDate() + index);
-  return date.toISOString().split("T")[0];
-}
-
-function generateBufferCSV(bars) {
-  const rows = ["Date,Time,Platform,Message,Image Filename,Link"];
-  
-  bars.forEach((bar, i) => {
-    const date = getPublishDate(i);
-    const url = `https://www.lieblingsbars.at/bar/${bar.slug}`;
-    const img = `public/images/${bar.slug}.jpg`;
-    
-    // X/Twitter (10:00)
-    rows.push(`${date},10:00,Twitter,"${bar.tweet.replace(/"/g, '""')}",${img},${url}`);
-    // Instagram (12:00)
-    rows.push(`${date},12:00,Instagram,"${bar.instagram.replace(/"/g, '""')}",${img},${url}`);
-    // Facebook (18:00)
-    rows.push(`${date},18:00,Facebook,"${bar.facebook.replace(/"/g, '""')}",${img},${url}`);
-  });
-  
-  fs.writeFileSync(
-    path.join(__dirname, "../social-media/buffer-schedule.csv"),
-    rows.join("\n")
-  );
-  console.log(`📅 Buffer schedule saved to social-media/buffer-schedule.csv`);
-}
-
-main().catch(console.error);
+main().catch(err => {
+  console.error("Fatal:", err);
+  process.exit(1);
+});

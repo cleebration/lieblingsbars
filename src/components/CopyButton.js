@@ -1,38 +1,36 @@
 "use client";
+
 import { useState } from "react";
 
-export default function CopyButton({ text, small = false }) {
+export default function CopyButton({ text }) {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = async () => {
     try {
-      await navigator.clipboard.writeText(text);
+      if (navigator.clipboard) {
+        await navigator.clipboard.writeText(text);
+      } else {
+        const ta = document.createElement("textarea");
+        ta.value = text;
+        ta.style.cssText = "position:fixed;opacity:0";
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand("copy");
+        document.body.removeChild(ta);
+      }
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
-    } catch {
-      // fallback
-      const el = document.createElement("textarea");
-      el.value = text;
-      document.body.appendChild(el);
-      el.select();
-      document.execCommand("copy");
-      document.body.removeChild(el);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+    } catch (e) {
+      console.error("Copy failed", e);
     }
   };
 
   return (
     <button
       onClick={handleCopy}
-      className="copy-btn"
-      style={
-        small
-          ? { fontSize: "0.6rem", padding: "0.25rem 0.5rem" }
-          : {}
-      }
+      className={`copy-btn${copied ? " copied" : ""}`}
     >
-      {copied ? "✓ Kopiert" : "Kopieren"}
+      {copied ? "Kopiert ✓" : "Kopieren"}
     </button>
   );
 }

@@ -1,23 +1,20 @@
 {
   "name": "lieblingsbars",
-  "version": "1.0.0",
-  "description": "MyW – Meine Lieblingsbars: 318 fiktive Bars, eine Welt.",
+  "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
-    "generate": "node scripts/generate-bars.mjs"
+    "generate": "node scripts/generate-bars.mjs",
+    "export-social": "node scripts/export-social.mjs"
   },
   "dependencies": {
-    "next": "^14.2.0",
-    "react": "^18.3.0",
-    "react-dom": "^18.3.0"
+    "next": "14.2.5",
+    "react": "^18",
+    "react-dom": "^18"
   },
   "devDependencies": {
-    "@anthropic-ai/sdk": "^0.24.0",
-    "eslint": "^8.57.0",
-    "eslint-config-next": "^14.2.0"
+    "@anthropic-ai/sdk": "^0.52.0"
   }
 }
