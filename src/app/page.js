@@ -59,12 +59,25 @@ export default function HomePage() {
           <div className="bars-grid">
             {filtered.map((bar) => (
               <Link key={bar.slug} href={`/bar/${bar.slug}/`} className="bar-card">
-                <span className="card-number">#{String(bar.id).padStart(3, "0")}</span>
-                <h2 className="card-name">{bar.name}</h2>
-                <p className="card-tagline">{bar.tagline}</p>
-                <div className="card-meta">
-                  <span className="card-city">{bar.city}</span>
-                  <span className="card-arrow">→</span>
+                <div className="card-image-wrap">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    className="card-image"
+                    src={`https://picsum.photos/seed/${bar.slug}/400/225`}
+                    alt={bar.name}
+                    loading="lazy"
+                    width={400}
+                    height={225}
+                  />
+                </div>
+                <div className="card-body">
+                  <span className="card-number">#{String(bar.id).padStart(3, "0")}</span>
+                  <h2 className="card-name">{bar.name}</h2>
+                  <p className="card-tagline">{bar.tagline}</p>
+                  <div className="card-meta">
+                    <span className="card-city">{bar.city}</span>
+                    <span className="card-arrow">→</span>
+                  </div>
                 </div>
               </Link>
             ))}

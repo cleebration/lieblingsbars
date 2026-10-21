@@ -16,6 +16,7 @@ export async function generateMetadata({ params }) {
     openGraph: {
       title: bar.name,
       description: bar.tagline,
+      images: [`https://picsum.photos/seed/${bar.slug}/1200/630`],
     },
   };
 }
@@ -40,6 +41,18 @@ export default function BarPage({ params }) {
           <span className="nav-count">#{String(bar.id).padStart(3, "0")} / {barsData.length}</span>
         </div>
       </nav>
+
+      {/* Hero image */}
+      <div className="detail-hero-wrap">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          className="detail-hero-img"
+          src={`https://picsum.photos/seed/${bar.slug}/1200/600`}
+          alt={bar.name}
+          width={1200}
+          height={600}
+        />
+      </div>
 
       <main className="detail-layout">
         <Link href="/" className="detail-back">← Alle Bars</Link>
