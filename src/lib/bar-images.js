@@ -4,6 +4,7 @@ const LOCAL_IMAGES = new Set([
   "ableitbar","abrufbar","absehbar","absicherbar","abspielbar",
   "abstimmbar","abwaehlbar","abwandelbar","abwehrbar","abzeichenbar",
   "achtsam-bar","aenderbar","ahnbar","akkumulierbar","adressierbar",
+  "anrufbar","anschliessbar","ansprechbar","anwendbar","anzeigbar","anzweifelbar","auffindbar","aufblasbar","aufladbar","aufzeichenbar",
 ]);
 
 export function getBarImageUrl(bar, width = 400, height = 225) {
