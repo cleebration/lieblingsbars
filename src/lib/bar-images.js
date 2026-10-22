@@ -7,6 +7,7 @@ export const LOCAL_IMAGES = new Set([
   "anrufbar","anschliessbar","ansprechbar","anwendbar","anzeigbar","anzweifelbar","auffindbar","aufblasbar","aufladbar","aufzeichenbar",
   "ausbaubar","ausblendbar","ausfuehrbar","aushaltbar","auslagerbar","ausloesbar","auslesbar","ausschaltbar","austauschbar","auswaehlbar",
   "auswertbar","auszahlbar","automatisierbar","bearbeitbar","bebaubar","bedienbar","bedruckbar","beeinflussbar","befahrbar","begehbar",
+  "begrenzbar","behebbar","beheizbar","bekaempfbar","belastbar","beleuchtbar","bemerkbar","benutzbar","beobachtbar","berechenbar",
 ]);
 
 export function getBarImageUrl(bar) {
