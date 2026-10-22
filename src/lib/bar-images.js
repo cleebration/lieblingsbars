@@ -1,5 +1,5 @@
 // Bars with locally generated images (in /public/bars/)
-const LOCAL_IMAGES = new Set([
+export const LOCAL_IMAGES = new Set([
   "abbaubar","abbildbar","abdichtbar","abgrenzbar","abhoerbar",
   "ableitbar","abrufbar","absehbar","absicherbar","abspielbar",
   "abstimmbar","abwaehlbar","abwandelbar","abwehrbar","abzeichenbar",
@@ -9,7 +9,7 @@ const LOCAL_IMAGES = new Set([
 ]);
 
 export function getBarImageUrl(bar) {
-  const slug = typeof bar === 'object' ? bar.slug : null;
+  const slug = typeof bar === "object" ? bar.slug : bar;
   if (slug && LOCAL_IMAGES.has(slug)) {
     return `/bars/${slug}.jpg`;
   }

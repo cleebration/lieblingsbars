@@ -665,3 +665,122 @@ a {
 @media (max-width: 640px) {
   .hero-nav { width: 40px; height: 40px; font-size: 1.5rem; }
 }
+
+/* ── Redaktion ──────────────────────────────────────── */
+.redaktion-login {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.login-box {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 2.5rem;
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+}
+.login-box h1 { font-family: var(--font-display); margin-bottom: 0.5rem; }
+.login-box p { color: var(--text-muted); margin-bottom: 1.5rem; }
+.login-input {
+  width: 100%; padding: 0.75rem 1rem;
+  background: var(--bg); border: 1px solid var(--border);
+  border-radius: var(--radius); color: var(--text); font-size: 1rem;
+  margin-bottom: 0.75rem;
+}
+.login-error { color: #e06060; font-size: 0.85rem; margin-bottom: 0.5rem; }
+.login-btn {
+  width: 100%; padding: 0.75rem;
+  background: var(--accent); color: #0a0a08;
+  border: none; border-radius: var(--radius);
+  font-size: 1rem; font-weight: 600; cursor: pointer;
+}
+.login-btn:hover { background: var(--accent-hover); }
+
+.redaktion-page { min-height: 100vh; }
+
+.redaktion-header {
+  max-width: var(--max-w); margin: 0 auto;
+  padding: 3rem 1.5rem 1.5rem;
+}
+.redaktion-header h1 {
+  font-family: var(--font-display); font-size: 2rem; margin-bottom: 0.4rem;
+}
+.redaktion-sub { color: var(--text-muted); margin-bottom: 1rem; }
+.redaktion-progress {
+  height: 4px; background: var(--border); border-radius: 2px; overflow: hidden;
+}
+.redaktion-progress-bar {
+  height: 100%; background: var(--accent);
+  transition: width 0.4s ease; border-radius: 2px;
+}
+
+.redaktion-controls {
+  max-width: var(--max-w); margin: 0 auto;
+  padding: 0 1.5rem 1.5rem;
+  display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;
+}
+.redaktion-filter-tabs { display: flex; gap: 0.5rem; }
+.filter-tab {
+  padding: 0.4rem 1rem; border-radius: 99px;
+  border: 1px solid var(--border); background: transparent;
+  color: var(--text-muted); cursor: pointer; font-size: 0.85rem;
+  transition: all 0.15s;
+}
+.filter-tab.active, .filter-tab:hover {
+  border-color: var(--accent); color: var(--accent);
+}
+
+.redaktion-grid {
+  max-width: var(--max-w); margin: 0 auto;
+  padding: 0 1.5rem 4rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.25rem;
+}
+.redaktion-card {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: 8px; overflow: hidden;
+  transition: border-color 0.15s;
+}
+.redaktion-card.has-image { border-color: rgba(200,169,110,0.4); }
+.redaktion-card-img {
+  aspect-ratio: 16/9; overflow: hidden;
+  background: var(--bg-elevated);
+}
+.redaktion-card-img img { width: 100%; height: 100%; object-fit: cover; }
+.redaktion-placeholder {
+  width: 100%; height: 100%;
+  display: flex; align-items: center; justify-content: center;
+}
+.redaktion-icon { font-size: 2rem; opacity: 0.3; }
+.redaktion-card-body {
+  padding: 1rem;
+  display: flex; flex-direction: column; gap: 0.3rem;
+}
+.redaktion-slug {
+  font-family: var(--font-mono); font-size: 0.75rem;
+  color: var(--text-dim); background: var(--bg-elevated);
+  padding: 0.15rem 0.4rem; border-radius: 3px; align-self: flex-start;
+}
+.redaktion-prompt {
+  font-size: 0.78rem; color: var(--text-muted); line-height: 1.4;
+  margin-top: 0.25rem;
+  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.redaktion-upload-btn {
+  margin-top: 0.5rem; padding: 0.55rem 1rem;
+  background: var(--accent); color: #0a0a08;
+  border: none; border-radius: var(--radius);
+  font-size: 0.85rem; font-weight: 600; cursor: pointer;
+  transition: background 0.15s;
+}
+.redaktion-upload-btn:hover { background: var(--accent-hover); }
+.redaktion-upload-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.redaktion-upload-btn.replace {
+  background: transparent; border: 1px solid var(--accent); color: var(--accent);
+}
+.redaktion-upload-btn.replace:hover { background: var(--accent-dim); }

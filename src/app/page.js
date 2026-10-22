@@ -1,34 +1,54 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
 import barsData from "../../data/bars.json";
 import { getBarImageUrl } from "../lib/bar-images";
 
-// Only bars that have a local photo
-const BARS_WITH_IMAGES = barsData.filter((b) => getBarImageUrl(b));
+const LOCAL_BARS = barsData.filter((b) => getBarImageUrl(b));
 
 export default function HomePage() {
   const [search, setSearch] = useState("");
+  const [blobManifest, setBlobManifest] = useState({});
+
+  useEffect(() => {
+    fetch("/api/manifest")
+      .then((r) => r.ok ? r.json() : {})
+      .then(setBlobManifest)
+      .catch(() => {});
+  }, []);
+
+  const allBars = useMemo(() => {
+    const blobSlugs = Object.keys(blobManifest);
+    const localSlugs = new Set(LOCAL_BARS.map((b) => b.slug));
+    const blobOnlyBars = barsData.filter(
+      (b) => blobSlugs.includes(b.slug) && !localSlugs.has(b.slug)
+    );
+    return [...LOCAL_BARS, ...blobOnlyBars];
+  }, [blobManifest]);
 
   const filtered = useMemo(() => {
     const q = search.toLowerCase().trim();
-    if (!q) return BARS_WITH_IMAGES;
-    return BARS_WITH_IMAGES.filter(
+    if (!q) return allBars;
+    return allBars.filter(
       (b) =>
         b.name.toLowerCase().includes(q) ||
         b.tagline?.toLowerCase().includes(q) ||
         b.city?.toLowerCase().includes(q) ||
         b.concept?.toLowerCase().includes(q)
     );
-  }, [search]);
+  }, [search, allBars]);
+
+  function getImageUrl(bar) {
+    return getBarImageUrl(bar) || blobManifest[bar.slug] || null;
+  }
 
   return (
     <>
       <nav className="nav">
         <div className="nav-inner">
           <span className="nav-logo">Lieblingsbars</span>
-          <span className="nav-count">{BARS_WITH_IMAGES.length} Bars</span>
+          <span className="nav-count">{allBars.length} Bars</span>
         </div>
       </nav>
 
@@ -51,28 +71,31 @@ export default function HomePage() {
             onChange={(e) => setSearch(e.target.value)}
           />
           <span className="filter-count">
-            {filtered.length} / {BARS_WITH_IMAGES.length}
+            {filtered.length} / {allBars.length}
           </span>
         </div>
       </div>
 
       <main className="bars-section">
         {filtered.length === 0 ? (
-          <div className="empty-state">Keine Bar gefunden für „{search}"</div>
+          <div className="empty-state">Keine Bar gefunden für "{search}"</div>
         ) : (
           <div className="bars-grid">
             {filtered.map((bar) => (
               <Link key={bar.slug} href={`/bar/${bar.slug}/`} className="bar-card">
                 <div className="card-image-wrap">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    className="card-image"
-                    src={getBarImageUrl(bar)}
-                    alt={bar.name}
-                    loading="lazy"
-                    width={400}
-                    height={225}
-                  />
+                  {getImageUrl(bar) ? (
+                    <img
+                      className="card-image"
+                      src={getImageUrl(bar)}
+                      alt={bar.name}
+                      loading="lazy"
+                      width={400}
+                      height={225}
+                    />
+                  ) : (
+                    <div className="card-image-placeholder" aria-hidden="true" />
+                  )}
                 </div>
                 <div className="card-body">
                   <span className="card-number">#{String(bar.id).padStart(3, "0")}</span>
